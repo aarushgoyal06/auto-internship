@@ -152,6 +152,8 @@ class ResumeTailor:
             variable_end_string=")))",
             block_start_string="<%",
             block_end_string="%>",
+            comment_start_string="<#",
+            comment_end_string="#>",
             trim_blocks=True,
             lstrip_blocks=True,
         )

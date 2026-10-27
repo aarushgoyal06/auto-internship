@@ -1,5 +1,13 @@
 from applier.config import LLMConfig
-from applier.llm import AnswerContext, OllamaProvider, build_provider, generate_application_answer
+import pytest
+
+from applier.llm import (
+    AnswerContext,
+    LLMError,
+    OllamaProvider,
+    build_provider,
+    generate_application_answer,
+)
 
 
 class LongProvider:
@@ -18,6 +26,13 @@ def test_uses_configured_fallback_when_primary_key_is_missing(monkeypatch):
     provider = build_provider(config)
     assert isinstance(provider, OllamaProvider)
     assert provider.model == "llama3.2"
+
+
+def test_reports_both_missing_api_keys(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
+    with pytest.raises(LLMError, match="GEMINI_API_KEY.*GROQ_API_KEY"):
+        build_provider(LLMConfig())
 
 
 def test_generated_answer_respects_character_limit():

@@ -116,8 +116,9 @@ Statuses are `queued`, `applied`, `failed`, `needs_review`, `skipped`, and `conf
 - Demographic questions select a visible “prefer not to say” equivalent.
 - Every generated answer is saved with its source (`profile`, `fixed`, `eeo_default`, or `llm`).
 
-Run a dry-run first. A dry-run fills and captures the form but does not click Submit and leaves
-the application queued.
+Run a dry-run first. A dry-run never clicks Submit. A clean fill stays queued; a CAPTCHA,
+missing form, or unresolved required field is moved to `needs_review`, and preparation/browser
+errors are recorded as `failed`.
 
 ## Gmail confirmations
 

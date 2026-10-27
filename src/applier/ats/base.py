@@ -45,7 +45,15 @@ def _field_label(locator: Locator) -> str:
                     .map(label => label.innerText.trim()).filter(Boolean) : [];
                 const fieldset = el.closest('fieldset');
                 const legend = fieldset?.querySelector('legend')?.innerText?.trim();
-                return labels.join(' ') || legend || el.getAttribute('aria-label') ||
+                const container = el.closest(
+                    '.application-question, .custom-question, .field, ' +
+                    '[data-testid*="question"], .ashby-application-form-question-container'
+                );
+                const containerLabel = container?.querySelector(
+                    'label, .application-label, [data-testid*="label"]'
+                )?.innerText?.trim();
+                return labels.join(' ') || legend || containerLabel ||
+                    el.getAttribute('aria-label') ||
                     el.getAttribute('data-label') || el.getAttribute('placeholder') ||
                     el.getAttribute('name') || el.getAttribute('id') || '';
             }"""

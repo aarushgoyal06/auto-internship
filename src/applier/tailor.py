@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import shutil
 import subprocess
@@ -305,8 +306,14 @@ class ResumeTailor:
 
     @staticmethod
     def _compiler() -> tuple[str, list[str]]:
-        if binary := shutil.which("tectonic"):
-            return binary, ["--keep-logs", "--synctex", "0"]
+        tectonic_candidates = [
+            os.getenv("TECTONIC_BIN"),
+            shutil.which("tectonic"),
+            str(Path.home() / ".local/bin/tectonic"),
+        ]
+        for candidate in tectonic_candidates:
+            if candidate and Path(candidate).is_file():
+                return candidate, ["--keep-logs", "--synctex", "0"]
         if binary := shutil.which("pdflatex"):
             return binary, ["-interaction=nonstopmode", "-halt-on-error"]
         raise ResumeCompileError(

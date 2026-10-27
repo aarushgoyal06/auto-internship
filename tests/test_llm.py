@@ -1,6 +1,6 @@
-from applier.config import LLMConfig
 import pytest
 
+from applier.config import LLMConfig
 from applier.llm import (
     AnswerContext,
     LLMError,

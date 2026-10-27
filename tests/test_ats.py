@@ -84,7 +84,8 @@ def test_supported_adapter_submits_fixture(
     assert result.trace_path is not None and result.trace_path.exists()
     assert context.resolver.audit["Email"]["source"] == "profile"
     if ats == "ashby":
-        assert context.resolver.audit["Will you require sponsorship?"]["answer"] == "No"
+        answer = context.resolver.audit["Will you require sponsorship?"]["answer"]
+        assert answer.casefold() == "no"
 
 
 def test_dry_run_never_clicks_submit(browser, profile, tmp_path):

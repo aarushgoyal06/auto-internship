@@ -177,7 +177,7 @@ def test_sync_updates_matching_application(engine, tmp_path: Path):
         application = session.get(Application, 1)
         assert application is not None
         assert application.status == "confirmed"
-        expected = datetime(2026, 10, 27, 1)
+        expected = datetime(2026, 10, 27, 1, tzinfo=UTC)
         assert application.confirmed_at == expected
         evidence = session.get(GmailEvidence, "message-1")
         assert evidence is not None

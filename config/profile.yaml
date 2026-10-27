@@ -1,0 +1,62 @@
+personal:
+  first_name: Aarush
+  last_name: Goyal
+  email: aarushg@udel.edu
+  phone: 302-740-9823
+  address_line_1:
+  city:
+  state:
+  postal_code:
+  country: United States
+  linkedin: https://linkedin.com/in/aarushgoyal
+  github: https://github.com/aarushgoyal06
+  website: https://aarushspersonalwebsite.vercel.app/projects
+
+education:
+  school: University of Delaware
+  degree: Bachelor of Science
+  majors:
+    - Computer Science
+    - Mathematics
+  minor: Economics
+  graduation_month: May
+  graduation_year: 2028
+  gpa: "4.0"
+
+authorization:
+  us_citizen: true
+  authorized_to_work_us: true
+  requires_sponsorship: false
+
+preferences:
+  willing_to_relocate: true
+  availability:
+  cover_letter: false
+  eeo_default: prefer_not_to_say
+
+skills:
+  Languages:
+    - Python
+    - C
+    - C++
+    - Java
+    - TypeScript
+    - JavaScript
+    - HTML
+    - CSS
+  Frameworks:
+    - React
+    - Node.js
+  Cloud/Infrastructure:
+    - AWS
+    - Lambda
+    - S3
+    - DynamoDB
+    - Terraform
+  Developer Tools:
+    - GitHub
+    - Cursor
+    - PostgreSQL
+    - Datadog
+    - Octo
+    - Postman

@@ -1,0 +1,126 @@
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\input{glyphtounicode}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+\urlstyle{same}
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+\titleformat{\section}{\vspace{-4pt}\scshape\raggedright\large}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+\pdfgentounicode=1
+
+\newcommand{\resumeItem}[1]{\item\small{{#1 \vspace{-2pt}}}}
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+  \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+    \textbf{#1} & #2 \\
+    \textit{\small#3} & \textit{\small#4} \\
+  \end{tabular*}\vspace{-7pt}
+}
+\newcommand{\resumeSubSubheading}[2]{
+  \item
+  \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+    \textit{\small#1} & \textit{\small#2} \\
+  \end{tabular*}\vspace{-7pt}
+}
+\newcommand{\resumeProjectHeading}[2]{
+  \item
+  \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+    \small#1 & #2 \\
+  \end{tabular*}\vspace{-10pt}
+}
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}\vspace{-1pt}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-10pt}}
+
+\begin{document}
+
+\begin{center}
+  \textbf{\Huge \scshape ((( personal.full_name )))} \\ \vspace{1pt}
+  \small
+  ((( personal.phone ))) $|$
+  \href{mailto:((( personal.email )))}{\underline{((( personal.email )))}} $|$
+  \href{((( personal.website )))}{\underline{aarushspersonalwebsite}} $|$
+  \href{((( personal.linkedin )))}{\underline{linkedin.com/in/aarushgoyal}} $|$
+  \href{((( personal.github )))}{\underline{github.com/aarushgoyal06}}
+\end{center}
+
+\section{Education}
+\resumeSubHeadingListStart
+  \resumeSubheading
+    {((( education.school )))}{Newark, DE}
+    {((( education.degree ))) in ((( education.majors ))), Minor in ((( education.minor )))}{((( education.graduation )))}
+  \resumeItemListStart
+    \resumeItem{Relevant Coursework: Data Structures \& Algorithms, Systems Programming, Machine Organization and Assembly Language, Linear Algebra, Automata Theory, Calculus III, Intro to SWE}
+    \resumeItem{GPA: ((( education.gpa ))), Honors}
+  \resumeItemListEnd
+\resumeSubHeadingListEnd
+
+\section{Technical Skills}
+\resumeSubHeadingListStart
+  \item\small{
+<% for group in skill_groups %>    \textbf{((( group.name )))}: ((( group.items )))<% if not loop.last %> \\<% endif %>
+<% endfor %>  }
+\resumeSubHeadingListEnd
+
+\section{Experience}
+\resumeSubHeadingListStart
+<% for role in experience %>
+  \resumeSubheading
+    {((( role.company )))}{((( role.location )))}
+    {((( role.role )))}{((( role.dates )))}
+  \resumeItemListStart
+<% for bullet in role.bullets %>    \resumeItem{((( bullet )))}
+<% endfor %>  \resumeItemListEnd
+<% for subrole in role.subroles %>
+  \resumeSubSubheading
+    {((( subrole.role )))}{((( subrole.dates )))}
+  \resumeItemListStart
+<% for bullet in subrole.bullets %>    \resumeItem{((( bullet )))}
+<% endfor %>  \resumeItemListEnd
+<% endfor %>
+<% endfor %>
+\resumeSubHeadingListEnd
+
+\section{Activities}
+\resumeSubHeadingListStart
+<% for activity in activities %>
+  \resumeProjectHeading
+    {((( activity.heading )))}{((( activity.dates )))}
+  \resumeItemListStart
+<% for bullet in activity.bullets %>    \resumeItem{((( bullet )))}
+<% endfor %>  \resumeItemListEnd
+<% endfor %>
+\resumeSubHeadingListEnd
+
+\section{Certifications \& Awards}
+\resumeSubHeadingListStart
+\resumeItemListStart
+<% for certification in certifications %>  \resumeItem{((( certification )))}
+<% endfor %>\resumeItemListEnd
+\resumeSubHeadingListEnd
+
+\end{document}

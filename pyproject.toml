@@ -1,0 +1,63 @@
+[project]
+name = "swe-internship-applier"
+version = "0.1.0"
+description = "A local, auditable SWE internship application assistant"
+readme = "README.md"
+authors = [
+    { name = "Aarush Goyal", email = "aarushg@udel.edu" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "google-api-python-client>=2.201.0",
+    "google-auth-httplib2>=0.4.4",
+    "google-auth-oauthlib>=1.5.0",
+    "google-genai>=2.33.0",
+    "groq>=1.7.0",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "playwright>=1.64.1",
+    "pypdf>=6.21.3",
+    "python-dotenv>=1.2.4",
+    "pyyaml>=6.0.3",
+    "rich>=15.0.0",
+    "sqlmodel>=0.0.48",
+    "typer>=0.27.3",
+]
+
+[project.scripts]
+applier = "applier.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.1",
+    "respx>=0.23.1",
+    "ruff>=0.17.3",
+]
+
+[tool.uv.build-backend]
+module-name = "applier"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+packages = ["applier"]
+check_untyped_defs = true
+warn_unused_ignores = true
+disallow_untyped_defs = true

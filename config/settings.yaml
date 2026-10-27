@@ -1,0 +1,32 @@
+source:
+  url: https://raw.githubusercontent.com/SimplifyJobs/Summer2027-Internships/dev/.github/scripts/listings.json
+  categories:
+    - Software
+    - Software Engineering
+  term: Summer 2027
+  us_only: true
+
+runtime:
+  headless: true
+  min_delay_seconds: 20
+  max_delay_seconds: 60
+  max_retries: 2
+  max_applications:
+  navigation_timeout_ms: 45000
+  slow_mo_ms: 0
+
+llm:
+  provider: gemini
+  model: gemini-2.5-flash
+  fallback_provider: groq
+  fallback_model: llama-3.3-70b-versatile
+  ollama_url: http://127.0.0.1:11434
+  ollama_model: llama3.2
+
+paths:
+  database: data/applier.db
+  resumes: data/resumes
+  screenshots: data/screenshots
+  traces: data/traces
+  gmail_token: data/gmail_token.json
+  gmail_credentials: credentials.json

@@ -1,0 +1,67 @@
+experience:
+  - company: Best Egg
+    location: Wilmington, DE
+    role: Software Engineer Intern
+    dates: May 2026 -- August 2026
+    min_bullets: 2
+    max_bullets: 3
+    bullets:
+      - text: "Shipped an AWS Lambda + Terraform stack for automated DynamoDB cleanup: wrote retention logic, wired IAM + EventBridge cron scheduling, and validated across environments."
+        keywords: [aws, lambda, terraform, dynamodb, iam, eventbridge, cloud, infrastructure, automation]
+      - text: "Designed and implemented an on-time delivery metric for affiliate loan reports, with a Python classifier that queries PostgreSQL EEV events, handles daily, weekly, and monthly SLAs, and excludes manual runs and re-runs."
+        keywords: [python, postgresql, sql, data, backend, metrics, reporting]
+      - text: "Wrote 200+ unit tests for an affiliate reporting pipeline rebuild."
+        keywords: [testing, unit tests, quality, python, pipeline]
+
+  - company: JPMorganChase
+    location: Wilmington, DE
+    role: Software Engineer Consultant
+    dates: May 2025 -- August 2025
+    min_bullets: 2
+    max_bullets: 2
+    bullets:
+      - text: "Developed an AWS Lambda function in Python to automate payment reconciliation workflows, reducing manual processing time by 35% and improving transaction accuracy."
+        keywords: [aws, lambda, python, automation, fintech, payments, backend]
+      - text: "Built and configured the Lambda using Jules, then deployed it via Spinnaker using CI/CD best practices to ensure secure, reliable production releases."
+        keywords: [lambda, jules, spinnaker, ci/cd, devops, deployment, security]
+
+  - company: Community Powered Federal Credit Union
+    location: Bear, DE
+    role: Member Services Representative
+    dates: June 2022 -- September 2024
+    min_bullets: 1
+    max_bullets: 2
+    bullets:
+      - text: "Delivered frontline financial services to an average of 50+ members daily, managing transactions, account openings, and loan processing with 100% accuracy."
+        keywords: [fintech, finance, customer, transactions, payments, accuracy]
+      - text: "Guided members through digital banking platforms and mobile applications, increasing online engagement and reducing in-branch wait times."
+        keywords: [fintech, mobile, customer, communication, digital]
+    subroles:
+      - role: Cybersecurity Intern
+        dates: September 2024 -- May 2025
+        min_bullets: 1
+        max_bullets: 2
+        bullets:
+          - text: "Configured and maintained Cisco Meraki routers, firewalls, and access points, optimizing network segmentation and improving system security posture."
+            keywords: [cybersecurity, network, cisco, meraki, firewalls, security]
+          - text: "Assisted in developing incident response and disaster recovery playbooks, ensuring preparedness for ransomware, phishing, and insider threat scenarios."
+            keywords: [cybersecurity, incident response, disaster recovery, security]
+
+activities:
+  - heading: "Kamaal | Bollywood Dance Team at the University of Delaware"
+    dates: September 2024 -- Present
+    bullets:
+      - Practiced Bollywood dance six hours a week in a team setting to perform throughout the year.
+  - heading: "Delta Kappa Epsilon | Fraternity at University of Delaware"
+    dates: September 2024 -- Present
+    bullets:
+      - "Recruitment Chair (Spring '25), founded and doubled chapter size from 8 to 20 in one year."
+      - "Health and Safety Chair (Spring '26), oversaw risk management policies and event compliance, ensuring safety standards while supporting smooth chapter operations."
+  - heading: "Sensify Lab | VIP Research Assistant"
+    dates: January 2025 -- Present
+    bullets:
+      - Built and iterated on prompt-engineered LLM workflows and UI components to support research-driven applications.
+
+certifications:
+  - AWS Certified Cloud Practitioner -- Amazon Web Services (2025)
+  - Best Automation Systems & Public Infrastructure Hack -- HenHacks -- 1st of 40+ teams (2026)

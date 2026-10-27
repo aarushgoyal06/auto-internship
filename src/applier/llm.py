@@ -114,7 +114,16 @@ def _single_provider(
 
 
 def build_provider(config: LLMConfig) -> LLMProvider:
-    primary = _single_provider(config.provider, config.model, config)
+    try:
+        primary = _single_provider(config.provider, config.model, config)
+    except LLMError:
+        if not config.fallback_provider or not config.fallback_model:
+            raise
+        return _single_provider(
+            config.fallback_provider,
+            config.fallback_model,
+            config,
+        )
     if not config.fallback_provider or not config.fallback_model:
         return primary
     try:

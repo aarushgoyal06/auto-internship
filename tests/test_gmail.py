@@ -1,8 +1,16 @@
 import base64
 from datetime import UTC, datetime
+from pathlib import Path
+
+from sqlmodel import Session
 
 from applier.db import Application, Job
-from applier.gmail import GmailMessage, match_confirmation, parse_message
+from applier.gmail import (
+    GmailMessage,
+    match_confirmation,
+    parse_message,
+    sync_gmail_confirmations,
+)
 
 
 def _encoded(value: str) -> str:
@@ -76,3 +84,88 @@ def test_does_not_treat_rejection_as_confirmation():
         body="Unfortunately, we will not be moving forward.",
     )
     assert match_confirmation(message, [(application, job)]) is None
+
+
+class _Execute:
+    def __init__(self, value):
+        self.value = value
+
+    def execute(self):
+        return self.value
+
+
+class _Messages:
+    def __init__(self, message):
+        self.message = message
+
+    def list(self, **_kwargs):
+        return _Execute({"messages": [{"id": "message-1"}]})
+
+    def get(self, **_kwargs):
+        return _Execute(self.message)
+
+
+class _Users:
+    def __init__(self, message):
+        self.message = message
+
+    def messages(self):
+        return _Messages(self.message)
+
+
+class FakeGmailService:
+    def __init__(self, message):
+        self.message = message
+
+    def users(self):
+        return _Users(self.message)
+
+
+def test_sync_updates_matching_application(engine, tmp_path: Path):
+    submitted = datetime(2026, 10, 27, tzinfo=UTC)
+    with Session(engine) as session:
+        session.add(
+            Job(
+                id="job-1",
+                company="Acme",
+                title="Software Engineer Intern",
+                url="https://acme.example/jobs/1",
+            )
+        )
+        session.add(
+            Application(
+                id=1,
+                job_id="job-1",
+                status="applied",
+                submitted_at=submitted,
+            )
+        )
+        session.commit()
+
+    raw = {
+        "id": "message-1",
+        "internalDate": str(int(datetime(2026, 10, 27, 1, tzinfo=UTC).timestamp() * 1000)),
+        "payload": {
+            "mimeType": "text/plain",
+            "headers": [
+                {"name": "Subject", "value": "Thank you for applying to Acme"},
+                {"name": "From", "value": "recruiting@acme.com"},
+            ],
+            "body": {
+                "data": _encoded("We received your application for Software Engineer Intern.")
+            },
+        },
+    }
+    stats = sync_gmail_confirmations(
+        engine,
+        credentials_path=tmp_path / "unused.json",
+        token_path=tmp_path / "unused-token.json",
+        service=FakeGmailService(raw),
+    )
+    assert stats.scanned == 1
+    assert stats.matched == 1
+    with Session(engine) as session:
+        application = session.get(Application, 1)
+        assert application is not None
+        assert application.status == "confirmed"
+        assert application.confirmed_at is not None

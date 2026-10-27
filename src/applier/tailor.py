@@ -313,7 +313,7 @@ class ResumeTailor:
         ]
         for candidate in tectonic_candidates:
             if candidate and Path(candidate).is_file():
-                return candidate, ["--keep-logs", "--synctex", "0"]
+                return candidate, ["--keep-logs", "--untrusted"]
         if binary := shutil.which("pdflatex"):
             return binary, ["-interaction=nonstopmode", "-halt-on-error"]
         raise ResumeCompileError(

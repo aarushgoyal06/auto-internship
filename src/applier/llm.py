@@ -141,7 +141,9 @@ def _trim_to_limit(text: str, max_chars: int) -> str:
     cleaned = re.sub(r"\s+", " ", text).strip().strip('"')
     if len(cleaned) <= max_chars:
         return cleaned
-    clipped = cleaned[: max_chars + 1]
+    if max_chars <= 1:
+        return cleaned[:max_chars]
+    clipped = cleaned[: max_chars - 1]
     if " " in clipped:
         clipped = clipped.rsplit(" ", 1)[0]
     return clipped.rstrip(" ,;:-") + "."

@@ -207,7 +207,12 @@ class ResumeTailor:
                     skills.index(skill),
                 ),
             )
-            groups.append({"name": latex_escape(group), "items": ", ".join(map(latex_escape, ordered))})
+            groups.append(
+                {
+                    "name": latex_escape(group),
+                    "items": ", ".join(map(latex_escape, ordered)),
+                }
+            )
         return groups
 
     def _render_context(
@@ -218,7 +223,7 @@ class ResumeTailor:
     ) -> dict[str, Any]:
         experience: list[dict[str, Any]] = []
         for role in data.get("experience", []):
-            rendered_role = {
+            rendered_role: dict[str, Any] = {
                 "company": latex_escape(str(role["company"])),
                 "location": latex_escape(str(role["location"])),
                 "role": latex_escape(str(role["role"])),

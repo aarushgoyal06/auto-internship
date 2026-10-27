@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from collections import Counter
-from pathlib import Path
 from typing import Annotated
 
 import typer
 from rich.console import Console
 from rich.table import Table
-from sqlmodel import Session, select
+from sqlalchemy.engine import Engine
+from sqlmodel import Session, col, select
 
 from applier.config import Profile, Settings, load_profile, load_settings
 from applier.db import Application, Job, create_db_engine, init_db
@@ -23,7 +23,7 @@ app = typer.Typer(
 console = Console()
 
 
-def _state() -> tuple[Settings, Profile, object]:
+def _state() -> tuple[Settings, Profile, Engine]:
     settings = load_settings()
     profile = load_profile()
     settings.ensure_runtime_dirs()
@@ -64,15 +64,12 @@ def list_jobs(
     _, _, engine = _state()
     with Session(engine) as session:
         statement = (
-            select(Application, Job)
-            .join(Job, Application.job_id == Job.id)
-            .order_by(Job.date_posted.desc())
-            .limit(limit)
+            select(Application, Job).join(Job).order_by(col(Job.date_posted).desc()).limit(limit)
         )
         if status:
-            statement = statement.where(Application.status == status)
+            statement = statement.where(col(Application.status) == status)
         if ats:
-            statement = statement.where(Job.ats_type == ats)
+            statement = statement.where(col(Job.ats_type) == ats)
         rows = session.exec(statement).all()
     table = Table("Status", "ATS", "Company", "Role", "Location", "Job ID")
     for application, job in rows:
@@ -120,9 +117,7 @@ def review(
         console.print(job.url)
         if unresolved:
             console.print("[yellow]Still unresolved:[/yellow] " + ", ".join(unresolved))
-        console.print(
-            "Complete the form (including any CAPTCHA) in the browser, then return here."
-        )
+        console.print("Complete the form (including any CAPTCHA) in the browser, then return here.")
         return typer.confirm("Was the application successfully submitted?", default=False)
 
     summary = runner.review(confirm, limit=limit)
@@ -138,9 +133,9 @@ def status() -> None:
         failures = list(
             session.exec(
                 select(Application, Job)
-                .join(Job, Application.job_id == Job.id)
-                .where(Application.status.in_(["failed", "needs_review"]))
-                .order_by(Application.updated_at.desc())
+                .join(Job)
+                .where(col(Application.status).in_(["failed", "needs_review"]))
+                .order_by(col(Application.updated_at).desc())
                 .limit(10)
             ).all()
         )
@@ -184,7 +179,7 @@ def tailor(job_id: str) -> None:
         if job is None:
             raise typer.BadParameter(f"Unknown job id: {job_id}")
         application = session.exec(
-            select(Application).where(Application.job_id == job_id)
+            select(Application).where(col(Application.job_id) == job_id)
         ).first()
         if application is None:
             raise typer.BadParameter(f"No application record for job id: {job_id}")
@@ -208,9 +203,7 @@ def run(
             credentials_path=settings.paths.gmail_credentials,
             token_path=settings.paths.gmail_token,
         )
-        console.print(
-            f"Gmail: scanned {gmail_stats.scanned}; matched {gmail_stats.matched}."
-        )
+        console.print(f"Gmail: scanned {gmail_stats.scanned}; matched {gmail_stats.matched}.")
     else:
         console.print("[yellow]Gmail sync skipped: credentials.json is not configured.[/yellow]")
 

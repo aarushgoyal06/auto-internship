@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import re
+from contextlib import suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
-from playwright.sync_api import Browser, Locator, Page, TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import Browser, Locator, Page
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from applier.answers import AnswerResolver, FormQuestion
 from applier.captcha import detect_captcha
@@ -54,6 +55,22 @@ def _field_label(locator: Locator) -> str:
     return re.sub(r"\s+", " ", str(value)).strip().rstrip("*").strip()
 
 
+def _radio_group_label(locator: Locator) -> str:
+    try:
+        value = locator.evaluate(
+            """el => {
+                const fieldset = el.closest('fieldset');
+                const group = el.closest('[role="radiogroup"]');
+                return fieldset?.querySelector('legend')?.innerText?.trim() ||
+                    group?.getAttribute('aria-label') ||
+                    group?.getAttribute('data-label') || '';
+            }"""
+        )
+    except Exception:
+        value = ""
+    return re.sub(r"\s+", " ", str(value)).strip().rstrip("*").strip()
+
+
 def _is_required(locator: Locator, label: str = "") -> bool:
     try:
         return (
@@ -63,7 +80,8 @@ def _is_required(locator: Locator, label: str = "") -> bool:
             or bool(
                 locator.evaluate(
                     """el => Boolean(el.closest(
-                        '[data-required="true"], .required, .field--required, .ashby-application-form-question-container'
+                        '[data-required="true"], .required, .field--required, ' +
+                        '.ashby-application-form-question-container'
                     )?.querySelector('[aria-required="true"], [required]'))"""
                 )
             )
@@ -162,11 +180,15 @@ class BaseATSAdapter:
             except Exception:
                 pass
             label = _field_label(field)
-            field_type = "textarea" if field.evaluate("el => el.tagName") == "TEXTAREA" else (
-                field.get_attribute("type") or "text"
+            field_type = (
+                "textarea"
+                if field.evaluate("el => el.tagName") == "TEXTAREA"
+                else (field.get_attribute("type") or "text")
             )
             max_length_raw = field.get_attribute("maxlength")
-            max_length = int(max_length_raw) if max_length_raw and max_length_raw.isdigit() else 1000
+            max_length = (
+                int(max_length_raw) if max_length_raw and max_length_raw.isdigit() else 1000
+            )
             required = _is_required(field, label)
             answer = context.resolver.resolve(
                 FormQuestion(
@@ -241,7 +263,7 @@ class BaseATSAdapter:
             visible_fields = [field for field in fields if _visible(field)]
             if not visible_fields or any(field.is_checked() for field in visible_fields):
                 continue
-            label = _field_label(visible_fields[0])
+            label = _radio_group_label(visible_fields[0]) or name
             options: list[str] = []
             for field in visible_fields:
                 option_label = _field_label(field)
@@ -310,7 +332,9 @@ class BaseATSAdapter:
                 field.click()
                 page.wait_for_timeout(150)
                 option_locator = page.locator('[role="option"]:visible')
-                options = [value.strip() for value in option_locator.all_inner_texts() if value.strip()]
+                options = [
+                    value.strip() for value in option_locator.all_inner_texts() if value.strip()
+                ]
             except Exception:
                 options = []
             answer = context.resolver.resolve(
@@ -328,10 +352,8 @@ class BaseATSAdapter:
                 if option.count():
                     option.first.click()
                     continue
-            try:
+            with suppress(Exception):
                 page.keyboard.press("Escape")
-            except Exception:
-                pass
             if required:
                 unresolved.append(label or "Required combobox")
 
@@ -407,7 +429,8 @@ class BaseATSAdapter:
         *,
         dry_run: bool = False,
     ) -> ApplyResult:
-        screenshot_path, trace_path = self._artifact_paths(context)
+        screenshot_path, trace_candidate = self._artifact_paths(context)
+        trace_path: Path | None = trace_candidate
         browser_context = browser.new_context()
         browser_context.set_default_timeout(context.navigation_timeout_ms)
         browser_context.tracing.start(screenshots=True, snapshots=True, sources=True)
@@ -443,14 +466,17 @@ class BaseATSAdapter:
                         result = ApplyResult("needs_review", "Could not find the submit button")
                     else:
                         submit.click(timeout=10_000)
-                        try:
+                        with suppress(PlaywrightTimeoutError):
                             page.wait_for_load_state("domcontentloaded", timeout=10_000)
-                        except PlaywrightTimeoutError:
-                            pass
                         page.wait_for_timeout(1_000)
                         page.screenshot(path=str(screenshot_path), full_page=True)
                         if self._confirmed(page):
                             result = ApplyResult("applied", "Application submitted")
+                        elif captcha := detect_captcha(page):
+                            result = ApplyResult(
+                                "needs_review",
+                                f"{captcha} requires manual completion",
+                            )
                         else:
                             validation = self._validation_error(page)
                             result = ApplyResult(
@@ -458,10 +484,8 @@ class BaseATSAdapter:
                                 validation or "Submission confirmation was not detected",
                             )
         except Exception as error:
-            try:
+            with suppress(Exception):
                 page.screenshot(path=str(screenshot_path), full_page=True)
-            except Exception:
-                pass
             result = ApplyResult("failed", f"{type(error).__name__}: {error}")
         finally:
             try:

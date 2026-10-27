@@ -13,7 +13,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import Resource, build
 from sqlalchemy.engine import Engine
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from applier.db import Application, Job, set_application_status
 
@@ -86,9 +86,7 @@ def extract_message_body(payload: dict[str, Any]) -> str:
     if body_data and mime_type in {"text/plain", "text/html"}:
         return _decode_part(str(body_data))
     chunks = [
-        extract_message_body(part)
-        for part in payload.get("parts") or []
-        if isinstance(part, dict)
+        extract_message_body(part) for part in payload.get("parts") or [] if isinstance(part, dict)
     ]
     return "\n".join(chunk for chunk in chunks if chunk)
 
@@ -138,12 +136,12 @@ def confirmation_score(message: GmailMessage, job: Job, application: Application
         return -100
     if not any(phrase in combined for phrase in CONFIRMATION_PHRASES):
         return 0
-    if (
-        message.sent_at
-        and application.submitted_at
-        and message.sent_at < application.submitted_at - timedelta(hours=1)
-    ):
-        return 0
+    if message.sent_at and application.submitted_at:
+        submitted_at = application.submitted_at
+        if submitted_at.tzinfo is None:
+            submitted_at = submitted_at.replace(tzinfo=UTC)
+        if message.sent_at < submitted_at - timedelta(hours=1):
+            return 0
 
     score = 4
     company_words = _normalized_words(job.company)
@@ -198,16 +196,13 @@ def sync_gmail_confirmations(
 ) -> GmailSyncStats:
     active_service = service or gmail_service(credentials_path, token_path)
     query = (
-        'newer_than:14d (subject:application OR "thank you for applying" '
-        'OR "application received")'
+        'newer_than:14d (subject:application OR "thank you for applying" OR "application received")'
     )
     ids = _message_ids(active_service, query)
     stats = GmailSyncStats(scanned=len(ids))
     with Session(engine) as session:
         rows = session.exec(
-            select(Application, Job)
-            .join(Job, Application.job_id == Job.id)
-            .where(Application.status == "applied")
+            select(Application, Job).join(Job).where(col(Application.status) == "applied")
         ).all()
         candidates = [(application, job) for application, job in rows]
         matched_applications: set[int] = set()

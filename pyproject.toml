@@ -39,6 +39,7 @@ dev = [
     "pytest-asyncio>=1.4.1",
     "respx>=0.23.1",
     "ruff>=0.17.3",
+    "types-pyyaml>=6.0.12.20260906",
 ]
 
 [tool.uv.build-backend]
@@ -61,3 +62,7 @@ packages = ["applier"]
 check_untyped_defs = true
 warn_unused_ignores = true
 disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["google_auth_oauthlib.*", "googleapiclient.*"]
+ignore_missing_imports = true

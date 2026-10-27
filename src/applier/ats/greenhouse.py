@@ -24,9 +24,7 @@ class GreenhouseAdapter(BaseATSAdapter):
     )
 
     def prepare_page(self, page: Page) -> None:
-        if page.locator(
-            '#application-form, #application_form, input[name="first_name"]'
-        ).count():
+        if page.locator('#application-form, #application_form, input[name="first_name"]').count():
             return
         for locator in (
             page.get_by_role("link", name="Apply", exact=True),

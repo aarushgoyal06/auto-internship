@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import random
 import time
 from collections import Counter
@@ -11,7 +10,7 @@ from pathlib import Path
 
 from playwright.sync_api import Browser, sync_playwright
 from sqlalchemy.engine import Engine
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from applier.answers import AnswerResolver
 from applier.ats import adapter_for
@@ -33,7 +32,7 @@ from applier.llm import (
     build_provider,
     extract_llm_keywords,
 )
-from applier.tailor import ResumeCompileError, ResumeTailor
+from applier.tailor import ResumeTailor
 
 
 @dataclass(slots=True)
@@ -79,9 +78,7 @@ class ApplicationRunner:
             for subrole in role.get("subroles", []):
                 facts.append(
                     f"{subrole.get('role')} at {role.get('company')} ({subrole.get('dates')}): "
-                    + " ".join(
-                        str(item.get("text", "")) for item in subrole.get("bullets", [])
-                    )
+                    + " ".join(str(item.get("text", "")) for item in subrole.get("bullets", []))
                 )
         return "\n".join(facts)
 
@@ -211,10 +208,10 @@ class ApplicationRunner:
     ) -> ApplyResult:
         try:
             resume_path = self._prepare_resume(session, job, application)
-        except (OSError, ValueError, ResumeCompileError, Exception) as error:
+        except Exception as error:
             result = ApplyResult("failed", f"Preparation failed: {type(error).__name__}: {error}")
             if application.id is None:
-                raise RuntimeError("Application has no database id")
+                raise RuntimeError("Application has no database id") from error
             attempt = Attempt(
                 application_id=application.id,
                 finished_at=utc_now(),
@@ -245,7 +242,10 @@ class ApplicationRunner:
                 context,
                 dry_run=dry_run,
             )
-            if last_result.status != "failed" or attempt_number >= self.settings.runtime.max_retries:
+            if (
+                last_result.status != "failed"
+                or attempt_number >= self.settings.runtime.max_retries
+            ):
                 break
         return last_result
 
@@ -261,12 +261,15 @@ class ApplicationRunner:
         with Session(self.engine) as session:
             statement = (
                 select(Application, Job)
-                .join(Job, Application.job_id == Job.id)
-                .where(Application.status == "queued", Job.active.is_(True))
-                .order_by(Job.date_posted.desc())
+                .join(Job)
+                .where(
+                    col(Application.status) == "queued",
+                    col(Job.active).is_(True),
+                )
+                .order_by(col(Job.date_posted).desc())
             )
             if ats_type:
-                statement = statement.where(Job.ats_type == ats_type)
+                statement = statement.where(col(Job.ats_type) == ats_type)
             if effective_limit is not None:
                 statement = statement.limit(effective_limit)
             rows = list(session.exec(statement).all())
@@ -306,9 +309,12 @@ class ApplicationRunner:
         with Session(self.engine) as session:
             statement = (
                 select(Application, Job)
-                .join(Job, Application.job_id == Job.id)
-                .where(Application.status == "needs_review", Job.active.is_(True))
-                .order_by(Job.date_posted.desc())
+                .join(Job)
+                .where(
+                    col(Application.status) == "needs_review",
+                    col(Job.active).is_(True),
+                )
+                .order_by(col(Job.date_posted).desc())
             )
             if limit is not None:
                 statement = statement.limit(limit)

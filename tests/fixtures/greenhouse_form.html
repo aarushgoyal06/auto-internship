@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <body>
+    <form id="application-form">
+      <label for="first_name">First name *</label>
+      <input id="first_name" name="first_name" required />
+
+      <label for="last_name">Last name *</label>
+      <input id="last_name" name="last_name" required />
+
+      <label for="email">Email *</label>
+      <input id="email" name="email" type="email" required />
+
+      <label for="phone">Phone *</label>
+      <input id="phone" name="phone" type="tel" required />
+
+      <label for="resume">Resume *</label>
+      <input id="resume" name="resume" type="file" required />
+
+      <fieldset>
+        <legend>Will you require sponsorship? *</legend>
+        <label><input name="sponsorship" type="radio" value="yes" required /> Yes</label>
+        <label><input name="sponsorship" type="radio" value="no" /> No</label>
+      </fieldset>
+
+      <label for="gender">Gender *</label>
+      <select id="gender" required>
+        <option value="">Select</option>
+        <option>Woman</option>
+        <option>Man</option>
+        <option>Prefer not to say</option>
+      </select>
+
+      <label for="why">Why do you want to work at this company? *</label>
+      <textarea id="why" maxlength="300" required></textarea>
+
+      <label>
+        <input id="certify" type="checkbox" required />
+        I certify that this application is accurate.
+      </label>
+
+      <button type="submit">Submit Application</button>
+    </form>
+    <script>
+      document.querySelector("form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        document.body.innerHTML = "<main>Thank you for applying. Your application has been submitted.</main>";
+      });
+    </script>
+  </body>
+</html>

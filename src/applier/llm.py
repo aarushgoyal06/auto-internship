@@ -148,7 +148,8 @@ def generate_application_answer(
     prompt = f"""Write a truthful first-person answer to a job application question.
 
 Hard rules:
-- Use only the candidate facts below. Never invent a project, skill, metric, preference, or experience.
+- Use only the candidate facts below.
+- Never invent a project, skill, metric, preference, or experience.
 - If the facts do not support the question, say so plainly instead of guessing.
 - Be specific and concise. Do not use hype, salutations, headings, or markdown.
 - Do not mention that you are an AI.

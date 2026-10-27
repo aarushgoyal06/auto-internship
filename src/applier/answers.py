@@ -112,7 +112,9 @@ class AnswerResolver:
                 return None
             return self._option_or_value(question, [personal.state])
         if any(token in label for token in ("zip", "postal code")):
-            return self._record(question, personal.postal_code, "profile") if personal.postal_code else None
+            if personal.postal_code:
+                return self._record(question, personal.postal_code, "profile")
+            return None
         if label in {"country", "country of residence", "current country"}:
             return self._option_or_value(
                 question,

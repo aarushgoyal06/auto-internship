@@ -146,7 +146,10 @@ def listing_is_in_scope(item: dict[str, Any], config: SourceConfig) -> bool:
     return not config.us_only or has_us_location(locations)
 
 
-def fetch_listings(config: SourceConfig, client: httpx.Client | None = None) -> list[dict[str, Any]]:
+def fetch_listings(
+    config: SourceConfig,
+    client: httpx.Client | None = None,
+) -> list[dict[str, Any]]:
     owns_client = client is None
     active_client = client or httpx.Client(follow_redirects=True, timeout=60)
     try:
@@ -200,8 +203,7 @@ def sync_listings(
 
     with Session(engine) as session:
         known_jobs = {
-            job.id: job
-            for job in session.exec(select(Job).where(Job.term == config.term)).all()
+            job.id: job for job in session.exec(select(Job).where(Job.term == config.term)).all()
         }
         for listing_id, item in feed_by_id.items():
             if listing_is_in_scope(item, config):
@@ -222,25 +224,30 @@ def sync_listings(
                     stats.updated += 1
                 _set_job_fields(job, item, config)
                 application = ensure_application(session, listing_id)
-                if application.status == "skipped" and application.error == "Listing closed upstream":
+                if (
+                    application.status == "skipped"
+                    and application.error == "Listing closed upstream"
+                ):
                     application.status = "queued"
                     application.error = None
                     application.updated_at = utc_now()
                 continue
 
             job = known_jobs.get(listing_id)
-            if job and job.active and (
-                item.get("active") is False or item.get("is_visible") is False
+            if (
+                job
+                and job.active
+                and (item.get("active") is False or item.get("is_visible") is False)
             ):
                 job.active = False
                 job.updated_at = utc_now()
-                application = session.exec(
+                existing_application = session.exec(
                     select(Application).where(Application.job_id == listing_id)
                 ).first()
-                if application and application.status == "queued":
-                    application.status = "skipped"
-                    application.error = "Listing closed upstream"
-                    application.updated_at = utc_now()
+                if existing_application and existing_application.status == "queued":
+                    existing_application.status = "skipped"
+                    existing_application.error = "Listing closed upstream"
+                    existing_application.updated_at = utc_now()
                 stats.closed += 1
 
         missing_ids = set(known_jobs) - set(feed_by_id)
@@ -250,13 +257,13 @@ def sync_listings(
                 continue
             job.active = False
             job.updated_at = utc_now()
-            application = session.exec(
+            existing_application = session.exec(
                 select(Application).where(Application.job_id == listing_id)
             ).first()
-            if application and application.status == "queued":
-                application.status = "skipped"
-                application.error = "Listing removed upstream"
-                application.updated_at = utc_now()
+            if existing_application and existing_application.status == "queued":
+                existing_application.status = "skipped"
+                existing_application.error = "Listing removed upstream"
+                existing_application.updated_at = utc_now()
             stats.closed += 1
 
         session.commit()

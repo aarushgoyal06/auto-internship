@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <body>
+    <form data-testid="application-form">
+      <label for="first">First name *</label>
+      <input id="first" required />
+      <label for="last">Last name *</label>
+      <input id="last" required />
+      <label for="email">Email *</label>
+      <input id="email" required />
+      <label for="website">Portfolio website *</label>
+      <input id="website" required />
+      <label for="school">University *</label>
+      <input id="school" required />
+      <label for="resume">Resume *</label>
+      <input id="resume" type="file" required />
+      <label for="citizen">Are you a United States citizen? *</label>
+      <select id="citizen" required>
+        <option value="">Select</option>
+        <option>Yes</option>
+        <option>No</option>
+      </select>
+      <button type="submit">Submit Application</button>
+    </form>
+    <script>
+      document.querySelector("form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        document.body.innerHTML = "<main>We received your application. Thank you for applying.</main>";
+      });
+    </script>
+  </body>
+</html>

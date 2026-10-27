@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <body>
+    <form class="application-form">
+      <label for="name">Full name *</label>
+      <input id="name" name="name" required />
+      <label for="email">Email *</label>
+      <input id="email" name="email" required />
+      <label for="phone">Phone *</label>
+      <input id="phone" name="phone" required />
+      <label for="linkedin">LinkedIn URL *</label>
+      <input id="linkedin" name="linkedin" required />
+      <label for="resume">Resume/CV *</label>
+      <input id="resume" name="resume" type="file" required />
+      <label for="authorization">Are you legally authorized to work in the United States? *</label>
+      <select id="authorization" required>
+        <option value="">Choose</option>
+        <option>Yes</option>
+        <option>No</option>
+      </select>
+      <button type="submit">Submit application</button>
+    </form>
+    <script>
+      document.querySelector("form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        document.body.innerHTML = "<main>Application submitted. Thanks for applying.</main>";
+      });
+    </script>
+  </body>
+</html>

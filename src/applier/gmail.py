@@ -109,6 +109,8 @@ def gmail_service(
     expected_email: str | None = None,
 ) -> Resource:
     credentials: Credentials | None = None
+    if credentials_path.exists():
+        credentials_path.chmod(0o600)
     if token_path.exists():
         token_path.chmod(0o600)
         credentials = Credentials.from_authorized_user_file(str(token_path), SCOPES)
@@ -135,7 +137,8 @@ def gmail_service(
         if actual_email.casefold() != expected_email.casefold():
             raise ValueError(
                 f"Gmail account mismatch: authorized {actual_email or 'unknown'}, "
-                f"expected {expected_email}"
+                f"expected {expected_email}. Remove {token_path} and authorize the "
+                "correct account."
             )
     return service
 
@@ -226,7 +229,12 @@ def _posting_key(url: str) -> str | None:
     if not parts:
         return None
     candidate = parts[-1].casefold()
-    return candidate if len(candidate) >= 6 else None
+    looks_like_identifier = candidate.isdigit() or (
+        len(candidate) >= 8
+        and any(character.isdigit() for character in candidate)
+        and re.fullmatch(r"[a-z0-9_-]+", candidate) is not None
+    )
+    return candidate if looks_like_identifier else None
 
 
 def _score_confirmation(
@@ -255,13 +263,25 @@ def _score_confirmation(
     normalized_subject_body = _normalized_text(f"{subject}\n{body}")
     company_words = _normalized_words(job.company)
     company_phrase = " ".join(company_words)
-    company_match = bool(company_phrase and company_phrase in normalized_combined)
+    company_match = bool(
+        company_phrase
+        and re.search(
+            rf"(?:^| ){re.escape(company_phrase)}(?: |$)",
+            normalized_combined,
+        )
+    )
     if company_match:
         score += 25
         reasons.append("company")
 
     role_phrase = _normalized_text(job.title)
-    role_match = bool(role_phrase and role_phrase in normalized_subject_body)
+    role_match = bool(
+        role_phrase
+        and re.search(
+            rf"(?:^| ){re.escape(role_phrase)}(?: |$)",
+            normalized_subject_body,
+        )
+    )
     if role_match:
         score += 30
         reasons.append("role_exact")

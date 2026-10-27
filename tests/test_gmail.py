@@ -44,6 +44,25 @@ def test_parses_multipart_gmail_message():
     assert message.sent_at is not None
 
 
+def test_html_body_is_sanitized():
+    raw = {
+        "id": "message-html",
+        "payload": {
+            "mimeType": "text/html",
+            "headers": [],
+            "body": {
+                "data": _encoded(
+                    "<style>hidden</style><script>steal()</script><p>Thank you for applying.</p>"
+                )
+            },
+        },
+    }
+    message = parse_message(raw)
+    assert "Thank you for applying." in message.body
+    assert "steal" not in message.body
+    assert "hidden" not in message.body
+
+
 def test_oauth_token_file_is_written_with_private_permissions(tmp_path: Path):
     token = tmp_path / "gmail_token.json"
     _write_token_securely(token, '{"refresh_token":"secret"}')
@@ -93,6 +112,48 @@ def test_does_not_treat_rejection_as_confirmation():
         body="Unfortunately, we will not be moving forward.",
     )
     assert match_confirmation(message, [(application, job)]) is None
+
+
+def test_low_margin_same_company_match_requires_review():
+    submitted = datetime(2026, 10, 27, tzinfo=UTC)
+    frontend_job = Job(
+        id="front",
+        company="Acme",
+        title="Frontend Software Engineer Intern",
+        url="https://acme.example/jobs/frontend-role",
+    )
+    backend_job = Job(
+        id="back",
+        company="Acme",
+        title="Backend Software Engineer Intern",
+        url="https://acme.example/jobs/backend-role",
+    )
+    frontend = Application(
+        id=1,
+        job_id="front",
+        status="applied",
+        submitted_at=submitted,
+    )
+    backend = Application(
+        id=2,
+        job_id="back",
+        status="applied",
+        submitted_at=submitted,
+    )
+    message = GmailMessage(
+        message_id="ambiguous",
+        subject="Thank you for applying to Acme",
+        sender="recruiting@acme.com",
+        sent_at=datetime(2026, 10, 27, 1, tzinfo=UTC),
+        body="We received your Software Engineer Intern application.",
+    )
+    assert (
+        match_confirmation(
+            message,
+            [(frontend, frontend_job), (backend, backend_job)],
+        )
+        is None
+    )
 
 
 class _Execute:

@@ -67,7 +67,13 @@ def greenhouse_api_url(url: str) -> str | None:
     if not parsed:
         return None
     board, job_id = parsed
-    return f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs/{job_id}?content=true"
+    host = (urlparse(url).hostname or "").lower()
+    api_host = (
+        "boards.eu.greenhouse.io"
+        if host.endswith(".eu.greenhouse.io")
+        else "boards-api.greenhouse.io"
+    )
+    return f"https://{api_host}/v1/boards/{board}/jobs/{job_id}?content=true"
 
 
 def lever_api_url(url: str) -> str | None:
@@ -75,7 +81,9 @@ def lever_api_url(url: str) -> str | None:
     if not parsed:
         return None
     company, posting_id = parsed
-    return f"https://api.lever.co/v0/postings/{company}/{posting_id}"
+    host = (urlparse(url).hostname or "").lower()
+    api_host = "api.eu.lever.co" if host.endswith(".eu.lever.co") else "api.lever.co"
+    return f"https://{api_host}/v0/postings/{company}/{posting_id}"
 
 
 def ashby_api_url(url: str) -> str | None:

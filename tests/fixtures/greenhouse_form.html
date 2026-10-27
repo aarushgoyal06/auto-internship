@@ -44,7 +44,8 @@
     <script>
       document.querySelector("form").addEventListener("submit", (event) => {
         event.preventDefault();
-        document.body.innerHTML = "<main>Thank you for applying. Your application has been submitted.</main>";
+        document.body.innerHTML =
+          '<main class="confirmation">Thank you for applying. Your application has been submitted.</main>';
       });
     </script>
   </body>

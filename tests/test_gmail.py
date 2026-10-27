@@ -1,12 +1,14 @@
 import base64
+import stat
 from datetime import UTC, datetime
 from pathlib import Path
 
 from sqlmodel import Session
 
-from applier.db import Application, Job
+from applier.db import Application, GmailEvidence, Job
 from applier.gmail import (
     GmailMessage,
+    _write_token_securely,
     match_confirmation,
     parse_message,
     sync_gmail_confirmations,
@@ -40,6 +42,13 @@ def test_parses_multipart_gmail_message():
     assert message.subject == "Application received by Acme"
     assert "Thank you for applying" in message.body
     assert message.sent_at is not None
+
+
+def test_oauth_token_file_is_written_with_private_permissions(tmp_path: Path):
+    token = tmp_path / "gmail_token.json"
+    _write_token_securely(token, '{"refresh_token":"secret"}')
+    assert token.read_text(encoding="utf-8") == '{"refresh_token":"secret"}'
+    assert stat.S_IMODE(token.stat().st_mode) == 0o600
 
 
 def test_matches_confirmation_to_best_application():
@@ -168,4 +177,10 @@ def test_sync_updates_matching_application(engine, tmp_path: Path):
         application = session.get(Application, 1)
         assert application is not None
         assert application.status == "confirmed"
-        assert application.confirmed_at is not None
+        expected = datetime(2026, 10, 27, 1)
+        assert application.confirmed_at == expected
+        evidence = session.get(GmailEvidence, "message-1")
+        assert evidence is not None
+        assert evidence.outcome == "matched"
+        assert evidence.application_id == 1
+        assert evidence.score >= 85

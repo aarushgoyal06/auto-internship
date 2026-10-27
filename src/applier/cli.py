@@ -160,11 +160,12 @@ def status() -> None:
 @app.command("gmail-sync")
 def gmail_sync() -> None:
     """Use read-only Gmail OAuth to find application confirmations."""
-    settings, _, engine = _state()
+    settings, profile, engine = _state()
     stats = sync_gmail_confirmations(
         engine,
         credentials_path=settings.paths.gmail_credentials,
         token_path=settings.paths.gmail_token,
+        expected_email=profile.personal.email,
     )
     console.print(f"Scanned {stats.scanned} message(s); matched {stats.matched}.")
 
@@ -202,6 +203,7 @@ def run(
             engine,
             credentials_path=settings.paths.gmail_credentials,
             token_path=settings.paths.gmail_token,
+            expected_email=profile.personal.email,
         )
         console.print(f"Gmail: scanned {gmail_stats.scanned}; matched {gmail_stats.matched}.")
     else:

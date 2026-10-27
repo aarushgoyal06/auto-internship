@@ -18,12 +18,14 @@
         <option>Yes</option>
         <option>No</option>
       </select>
-      <button type="submit">Submit application</button>
+      <button id="btn-submit" data-qa="btn-submit" class="template-btn-submit" type="button">
+        Submit application
+      </button>
     </form>
     <script>
-      document.querySelector("form").addEventListener("submit", (event) => {
-        event.preventDefault();
-        document.body.innerHTML = "<main>Application submitted. Thanks for applying.</main>";
+      document.querySelector("#btn-submit").addEventListener("click", () => {
+        document.body.innerHTML =
+          '<main class="application-confirmation">Application submitted. Thanks for applying.</main>';
       });
     </script>
   </body>

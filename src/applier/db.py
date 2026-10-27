@@ -84,6 +84,22 @@ class Artifact(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utc_now)
 
 
+class GmailEvidence(SQLModel, table=True):
+    message_id: str = Field(primary_key=True)
+    thread_id: str | None = None
+    received_at: datetime | None = None
+    detector_version: str = "1"
+    outcome: str = Field(index=True)
+    application_id: int | None = Field(
+        default=None,
+        foreign_key="application.id",
+        index=True,
+    )
+    score: int = 0
+    reason: str
+    processed_at: datetime = Field(default_factory=utc_now)
+
+
 APPLICATION_STATUSES = {
     "queued",
     "applied",
@@ -132,6 +148,7 @@ def set_application_status(
     status: str,
     *,
     error: str | None = None,
+    occurred_at: datetime | None = None,
 ) -> None:
     if status not in APPLICATION_STATUSES:
         raise ValueError(f"Unknown application status: {status}")
@@ -139,6 +156,6 @@ def set_application_status(
     application.error = error
     application.updated_at = utc_now()
     if status == "applied":
-        application.submitted_at = utc_now()
+        application.submitted_at = occurred_at or utc_now()
     elif status == "confirmed":
-        application.confirmed_at = utc_now()
+        application.confirmed_at = occurred_at or utc_now()

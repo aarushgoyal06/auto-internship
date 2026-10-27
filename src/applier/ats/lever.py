@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from urllib.parse import parse_qs, urlparse
+
 from playwright.sync_api import Page
 
 from applier.ats.base import BaseATSAdapter
@@ -7,8 +9,15 @@ from applier.ats.base import BaseATSAdapter
 
 class LeverAdapter(BaseATSAdapter):
     name = "lever"
-    form_selectors = (".application-form", 'form[action*="/apply"]')
+    form_selectors = (
+        "form#application-form",
+        ".application-form",
+        'form[action*="/apply"]',
+    )
     submit_selectors = (
+        '#btn-submit[data-qa="btn-submit"]',
+        "#btn-submit",
+        ".template-btn-submit",
         'button[type="submit"]',
         'input[type="submit"]',
         ".application-submit button",
@@ -19,7 +28,7 @@ class LeverAdapter(BaseATSAdapter):
     )
 
     def prepare_page(self, page: Page) -> None:
-        if page.locator(".application-form, form.application").count():
+        if page.locator("form#application-form, .application-form, form.application").count():
             return
         for locator in (
             page.locator('a[href$="/apply"]'),
@@ -33,3 +42,19 @@ class LeverAdapter(BaseATSAdapter):
                     return
             except Exception:
                 continue
+
+    def _confirmed(self, page: Page) -> bool:
+        parsed = urlparse(page.url)
+        if parsed.path.rstrip("/").endswith("/thanks"):
+            return True
+        if "LeverAppId" in parse_qs(parsed.query):
+            return True
+        for selector in (
+            ".application-confirmation",
+            '[data-qa="application-confirmation"]',
+            ".confirmation",
+        ):
+            locator = page.locator(selector)
+            if locator.count() and locator.first.is_visible():
+                return True
+        return False

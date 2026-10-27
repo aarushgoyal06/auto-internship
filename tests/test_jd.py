@@ -22,8 +22,16 @@ def test_parses_ats_api_urls():
         == "https://boards-api.greenhouse.io/v1/boards/acme/jobs/123456?content=true"
     )
     assert (
+        greenhouse_api_url("https://job-boards.eu.greenhouse.io/acme/jobs/123456")
+        == "https://boards.eu.greenhouse.io/v1/boards/acme/jobs/123456?content=true"
+    )
+    assert (
         lever_api_url("https://jobs.lever.co/acme/abc-123")
         == "https://api.lever.co/v0/postings/acme/abc-123"
+    )
+    assert (
+        lever_api_url("https://jobs.eu.lever.co/acme/abc-123")
+        == "https://api.eu.lever.co/v0/postings/acme/abc-123"
     )
     assert (
         ashby_api_url("https://jobs.ashbyhq.com/acme/posting-123")

@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <body>
-    <form data-testid="application-form">
+    <div class="ashby-application-form-container">
       <label for="first">First name *</label>
       <input id="first" required />
       <label for="last">Last name *</label>
@@ -20,12 +20,34 @@
         <option>Yes</option>
         <option>No</option>
       </select>
-      <button type="submit">Submit Application</button>
-    </form>
+      <div class="ashby-application-form-field-entry">
+        <div class="ashby-application-form-question-title">Will you require sponsorship? *</div>
+        <input type="hidden" required />
+        <button
+          class="ashby-application-form-input-yesno-option"
+          data-option="yes"
+          type="button"
+        >
+          Yes
+        </button>
+        <button
+          class="ashby-application-form-input-yesno-option"
+          data-option="no"
+          type="button"
+        >
+          No
+        </button>
+      </div>
+      <button class="ashby-application-form-submit-button" type="button">
+        Submit Application
+      </button>
+    </div>
     <script>
-      document.querySelector("form").addEventListener("submit", (event) => {
-        event.preventDefault();
-        document.body.innerHTML = "<main>We received your application. Thank you for applying.</main>";
+      document
+        .querySelector(".ashby-application-form-submit-button")
+        .addEventListener("click", () => {
+          document.body.innerHTML =
+            '<main class="ashby-application-form-success-container">Application Received</main>';
       });
     </script>
   </body>

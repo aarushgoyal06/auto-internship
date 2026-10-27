@@ -83,6 +83,8 @@ def test_supported_adapter_submits_fixture(
     assert result.screenshot_path is not None and result.screenshot_path.exists()
     assert result.trace_path is not None and result.trace_path.exists()
     assert context.resolver.audit["Email"]["source"] == "profile"
+    if ats == "ashby":
+        assert context.resolver.audit["Will you require sponsorship?"]["answer"] == "No"
 
 
 def test_dry_run_never_clicks_submit(browser, profile, tmp_path):
@@ -108,6 +110,16 @@ def test_visible_captcha_is_detected_but_hidden_token_is_not(browser):
     page = context.new_page()
     page.set_content('<textarea name="g-recaptcha-response" style="display:none"></textarea>')
     assert detect_captcha(page) is None
+    page.set_content(
+        '<iframe src="https://www.google.com/recaptcha/api2/anchor" '
+        'style="width:256px;height:60px"></iframe>'
+    )
+    assert detect_captcha(page) is None
+    page.set_content(
+        '<iframe src="https://www.google.com/recaptcha/api2/bframe" '
+        'style="width:300px;height:300px"></iframe>'
+    )
+    assert detect_captcha(page) == "reCAPTCHA"
     page.set_content('<div class="h-captcha" style="width:100px;height:50px">Challenge</div>')
     assert detect_captcha(page) == "hCaptcha"
     context.close()

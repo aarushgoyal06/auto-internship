@@ -38,3 +38,16 @@ class GreenhouseAdapter(BaseATSAdapter):
                     return
             except Exception:
                 continue
+
+    def _confirmed(self, page: Page) -> bool:
+        if "/confirmation" in page.url:
+            return True
+        for selector in (
+            ".confirmation",
+            ".confirmation__content",
+            '[data-testid="confirmation"]',
+        ):
+            locator = page.locator(selector)
+            if locator.count() and locator.first.is_visible():
+                return True
+        return False

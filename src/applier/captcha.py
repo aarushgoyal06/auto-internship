@@ -4,19 +4,17 @@ from playwright.sync_api import Page
 
 CAPTCHA_SELECTORS = {
     "reCAPTCHA": (
-        'iframe[src*="recaptcha"]',
-        ".g-recaptcha",
-        'textarea[name="g-recaptcha-response"]',
+        'iframe[src*="recaptcha"][src*="bframe"]',
+        'iframe[title*="recaptcha challenge" i]',
+        '.g-recaptcha:not([data-size="invisible"])',
     ),
     "hCaptcha": (
-        'iframe[src*="hcaptcha.com"]',
-        ".h-captcha",
-        'textarea[name="h-captcha-response"]',
+        'iframe[src*="hcaptcha.com"][title*="challenge" i]',
+        '.h-captcha:not([data-size="invisible"])',
     ),
     "Cloudflare Turnstile": (
         'iframe[src*="challenges.cloudflare.com"]',
-        ".cf-turnstile",
-        'input[name="cf-turnstile-response"]',
+        '.cf-turnstile:not([data-size="invisible"])',
     ),
 }
 

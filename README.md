@@ -132,9 +132,11 @@ uv run applier gmail-sync
 
 The first run opens Google's consent flow for the read-only
 `https://www.googleapis.com/auth/gmail.readonly` scope. The refresh token is stored in
-`data/gmail_token.json`. Messages from the last 14 days with application-related subjects are
-matched to submitted jobs by company, role, sender domain, and submission time. Gmail access
-never sends, deletes, or labels mail.
+`data/gmail_token.json` with owner-only (`0600`) permissions. The authorized Gmail address must
+match the application email in `config/profile.yaml`. Candidate messages are matched
+conservatively by posting ID, company, role, ATS sender, and submission time. The database stores
+only matching evidence and Gmail message IDs—not message bodies. Gmail access never sends,
+deletes, or labels mail.
 
 ## Scheduling
 

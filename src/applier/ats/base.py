@@ -47,10 +47,12 @@ def _field_label(locator: Locator) -> str:
                 const legend = fieldset?.querySelector('legend')?.innerText?.trim();
                 const container = el.closest(
                     '.application-question, .custom-question, .field, ' +
-                    '[data-testid*="question"], .ashby-application-form-question-container'
+                    '[data-testid*="question"], .ashby-application-form-question-container, ' +
+                    '.ashby-application-form-field-entry'
                 );
                 const containerLabel = container?.querySelector(
-                    'label, .application-label, [data-testid*="label"]'
+                    'label, .application-label, [data-testid*="label"], ' +
+                    '.ashby-application-form-question-title'
                 )?.innerText?.trim();
                 return labels.join(' ') || legend || containerLabel ||
                     el.getAttribute('aria-label') ||
@@ -89,7 +91,8 @@ def _is_required(locator: Locator, label: str = "") -> bool:
                 locator.evaluate(
                     """el => Boolean(el.closest(
                         '[data-required="true"], .required, .field--required, ' +
-                        '.ashby-application-form-question-container'
+                        '.ashby-application-form-question-container, ' +
+                        '.ashby-application-form-field-entry'
                     )?.querySelector('[aria-required="true"], [required]'))"""
                 )
             )

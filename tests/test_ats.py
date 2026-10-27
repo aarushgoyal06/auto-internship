@@ -92,6 +92,17 @@ def test_dry_run_never_clicks_submit(browser, profile, tmp_path):
     assert "not clicked" in result.message
 
 
+def test_blank_page_is_not_reported_as_success(browser, profile, tmp_path):
+    blank = tmp_path / "blank.html"
+    blank.write_text("<!doctype html><html><body></body></html>", encoding="utf-8")
+    context = _context(tmp_path, profile, "ashby", "ashby_form.html")
+    context.job.url = blank.resolve().as_uri()
+    result = AshbyAdapter().apply(browser, context, dry_run=True)
+    assert result.status == "needs_review"
+    assert result.message == "Visible application form was not found"
+    assert result.screenshot_path is not None
+
+
 def test_visible_captcha_is_detected_but_hidden_token_is_not(browser):
     context = browser.new_context()
     page = context.new_page()

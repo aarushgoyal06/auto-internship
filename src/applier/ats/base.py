@@ -149,6 +149,17 @@ class BaseATSAdapter:
             return False
         return any(pattern in text for pattern in self.closed_patterns)
 
+    def _application_form_present(self, page: Page) -> bool:
+        combined = ", ".join(self.form_selectors)
+        with suppress(PlaywrightTimeoutError):
+            page.wait_for_selector(combined, state="visible", timeout=3_000)
+        for selector in self.form_selectors:
+            candidates = page.locator(selector)
+            for index in range(candidates.count()):
+                if _visible(candidates.nth(index)):
+                    return True
+        return False
+
     def _fill_files(
         self,
         page: Page,
@@ -456,6 +467,8 @@ class BaseATSAdapter:
                 result = ApplyResult("skipped", "Listing is closed")
             elif captcha := detect_captcha(page):
                 result = ApplyResult("needs_review", f"{captcha} requires manual completion")
+            elif not self._application_form_present(page):
+                result = ApplyResult("needs_review", "Visible application form was not found")
             else:
                 unresolved = self.prefill(page, context)
                 page.screenshot(path=str(screenshot_path), full_page=True)
@@ -496,6 +509,9 @@ class BaseATSAdapter:
                 page.screenshot(path=str(screenshot_path), full_page=True)
             result = ApplyResult("failed", f"{type(error).__name__}: {error}")
         finally:
+            if not screenshot_path.exists():
+                with suppress(Exception):
+                    page.screenshot(path=str(screenshot_path), full_page=True)
             try:
                 browser_context.tracing.stop(path=str(trace_path))
             except Exception:

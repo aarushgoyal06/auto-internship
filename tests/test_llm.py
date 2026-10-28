@@ -19,7 +19,7 @@ def test_uses_configured_fallback_when_primary_key_is_missing(monkeypatch):
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     config = LLMConfig(
         provider="gemini",
-        model="gemini-2.5-flash",
+        model="gemini-3.8-flash",
         fallback_provider="ollama",
         fallback_model="llama3.2",
     )

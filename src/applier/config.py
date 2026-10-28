@@ -102,7 +102,7 @@ class RuntimeConfig(BaseModel):
 
 class LLMConfig(BaseModel):
     provider: str = "gemini"
-    model: str = "gemini-2.5-flash"
+    model: str = "gemini-3.8-flash"
     fallback_provider: str | None = "groq"
     fallback_model: str | None = "llama-3.3-70b-versatile"
     ollama_url: str = "http://127.0.0.1:11434"

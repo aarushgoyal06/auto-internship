@@ -6,7 +6,7 @@ from typing import Any
 
 import yaml
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class PersonalProfile(BaseModel):
@@ -22,6 +22,13 @@ class PersonalProfile(BaseModel):
     linkedin: str
     github: str
     website: str
+
+    @field_validator("postal_code", mode="before")
+    @classmethod
+    def coerce_postal_code(cls, value: object) -> object:
+        if isinstance(value, int):
+            return str(value)
+        return value
 
     @property
     def full_name(self) -> str:

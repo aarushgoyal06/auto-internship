@@ -57,7 +57,9 @@ def test_resolves_identity_authorization_and_eeo(profile):
 
 
 def test_missing_profile_fact_is_not_invented(profile):
-    resolver = _resolver(profile)
+    profile_without_address = profile.model_copy(deep=True)
+    profile_without_address.personal.address_line_1 = None
+    resolver = _resolver(profile_without_address)
     assert resolver.resolve(FormQuestion("Street address", required=True)) is None
     assert resolver.resolve(FormQuestion("Salary expectation", required=True)) is None
     assert resolver.resolve(FormQuestion("Cover letter", field_type="textarea")) is None

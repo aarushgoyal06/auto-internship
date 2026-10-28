@@ -3,21 +3,21 @@ personal:
   last_name: Goyal
   email: aarushg@udel.edu
   phone: 302-740-9823
-  address_line_1:
-  city:
-  state:
-  postal_code:
+  address_line_1: 216 Testaverde Road
+  city: Newark
+  state: Delaware
+  postal_code: 19702
   country: United States
   linkedin: https://linkedin.com/in/aarushgoyal
   github: https://github.com/aarushgoyal06
-  website: https://aarushspersonalwebsite.vercel.app/projects
+  website: https://aarushspersonalwebsite.vercel.app
 
 education:
   school: University of Delaware
   degree: Bachelor of Science
   majors:
     - Computer Science
-    - Mathematics
+    - Applied Mathematics
   minor: Economics
   graduation_month: May
   graduation_year: 2028
@@ -30,7 +30,7 @@ authorization:
 
 preferences:
   willing_to_relocate: true
-  availability:
+  availability: May 2027 - August 2027
   cover_letter: false
   eeo_default: prefer_not_to_say
 
